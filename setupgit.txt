@@ -1,0 +1,11 @@
+How to setup Git and Github first time on Ubantu.
+
+1) Download and install Git for Linux : sudo apt-get install git
+2) git config --global user.name "datalatics"
+3) git config --global user.name "datalatics.ca@gmail.com"
+4) git init Mapreduce
+5) cd Mapreducea
+6) gedit README
+7) git add README
+8) git commit -m "How to setup Git on Linux"
+9) git remote add origin https://github.com/datalatics/Mapreduce.git
