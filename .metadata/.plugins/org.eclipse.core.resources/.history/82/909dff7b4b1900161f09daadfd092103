@@ -1,0 +1,98 @@
+package ca.datalatics.mapreduce;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+public class WordCount {
+	
+	
+	public static class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
+		
+		
+		public void map(LongWritable key, Text value, Context context) throws InterruptedException, IOException{
+			
+			String inputLine = value.toString();
+			String splitWordsArr[] = inputLine.split(" ");
+			
+			for (String word : splitWordsArr) {
+				
+				value.set(word.trim());
+				context.write(value, new IntWritable(1));
+				
+			}
+			
+		}
+		
+	}
+	
+	public static class WordCountReducer extends Reducer<Text, Iterable<IntWritable>, Text, IntWritable>{
+		
+		Map<String,Integer> map = new TreeMap<String,Integer>();
+		
+		@SuppressWarnings("unchecked")
+		public void reducer(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException{
+			
+			int wordCount=0;
+			for (IntWritable value : values) {
+				wordCount+=value.get();
+			}
+			//context.write(key,new IntWritable(wordCount));
+			map.put(key.toString(),wordCount);
+		}
+		
+		public void cleanup(Context context) throws IOException, InterruptedException{
+			
+			Set<String> keySet = map.keySet();
+			
+			for (String key : keySet) {
+				context.write(new Text(key), new IntWritable(map.get(key)));	
+			}
+			
+			
+			
+		}
+		
+	}
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "Wordcount");
+		job.setJarByClass(ca.datalatics.mapreduce.WordCount.class);
+		job.setMapperClass(WordCountMapper.class);
+		job.setReducerClass(WordCountReducer.class);
+		
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(IntWritable.class);
+		
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(IntWritable.class);
+
+		FileInputFormat.setInputPaths(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		
+		Path outputPath = new Path(args[1]);
+		outputPath.getFileSystem(conf).delete(outputPath);
+
+		if (!job.waitForCompletion(true))
+			return;
+	}
+
+}

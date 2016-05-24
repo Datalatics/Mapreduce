@@ -1,0 +1,82 @@
+package ca.datalatics.mapreduce.wb;
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class GDPDriver {
+
+	public static class GDPMapper extends Mapper<LongWritable, Text, Text, Text> {
+
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+
+			String splitArr[] = key.toString().split("\"");
+
+			if (splitArr.length == 2) {
+
+				String cntstr[] = splitArr[0].split(",");
+				if (cntstr.length == 3) {
+					String cntCode = cntstr[0];
+					String cntName = cntstr[3];
+					String gdp = splitArr[1];
+					context.write(new Text(cntName), new Text(gdp));
+				}
+				else{
+					context.write(new Text(cntstr[0]), new Text(cntstr[2]));
+				}
+				
+
+			}
+			else{
+				context.write(new Text(splitArr[0]), new Text(splitArr[1]));
+			}
+		}
+
+	}
+	
+	
+
+	public class GDPReducer extends Reducer<Text, Text, Text, Text> {
+
+		public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			for (Text value : values) {
+				context.write(key, value);
+			}
+		}
+
+	}
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "GDP");
+		job.setJarByClass(ca.datalatics.mapreduce.wb.GDPDriver.class);
+		job.setMapperClass(GDPMapper.class);
+
+		//job.setReducerClass(GDPReducer.class);
+
+		// TODO: specify output types
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+
+		// TODO: specify input and output DIRECTORIES (not files)
+		FileInputFormat.setInputPaths(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		// deleting the output path automatically from hdfs so that we don't
+		// have delete it explicitly
+		Path outputPath = new Path(args[1]);
+		outputPath.getFileSystem(conf).delete(outputPath);
+
+		if (!job.waitForCompletion(true))
+			return;
+	}
+
+}

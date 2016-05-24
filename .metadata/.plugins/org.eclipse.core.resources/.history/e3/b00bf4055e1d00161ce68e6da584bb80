@@ -1,0 +1,51 @@
+package ca.datalatics.mapreduce.nystock;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+
+public static class StockMapper extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT>{
+	
+	public void map(){
+		
+	}
+	
+}
+
+public static class StockReducer extends Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT>{
+	
+	public void reduce(){
+		
+	}
+	
+}
+
+public class StockDriver {
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "JobName");
+		job.setJarByClass(ca.datalatics.mapreduce.nystock.StockDriver.class);
+		job.setMapperClass(StockMarketMapper.class);
+
+		job.setReducerClass(StockMarketReducer.class);
+
+		// TODO: specify output types
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+
+		// TODO: specify input and output DIRECTORIES (not files)
+		FileInputFormat.setInputPaths(job, new Path("src"));
+		FileOutputFormat.setOutputPath(job, new Path("out"));
+
+		if (!job.waitForCompletion(true))
+			return;
+	}
+
+}

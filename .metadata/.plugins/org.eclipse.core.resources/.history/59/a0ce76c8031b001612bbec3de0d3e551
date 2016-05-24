@@ -1,0 +1,10 @@
+package ca.datalatics.mapreduce;
+
+public class EncDec {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

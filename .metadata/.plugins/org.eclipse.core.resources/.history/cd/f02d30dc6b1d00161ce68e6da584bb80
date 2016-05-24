@@ -1,0 +1,65 @@
+package ca.datalatics.mapreduce.nystock;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.WritableComparable;
+
+public class StockInfo implements WritableComparable<StockInfo> {
+
+	private String exchange;
+	private String stock_symbol;
+	private double stock_price_open;
+	private double stock_price_high;
+	private double stock_price_low;
+	private double stock_price_close;
+	private int stock_volume;
+	private double stock_price_adj_close;
+
+	public StockInfo(String exchange, String stock_symbol, double stock_price_open, double stock_price_high,
+			double stock_price_low, double stock_price_close, int stock_volume, double stock_price_adj_close) {
+		this.exchange = exchange;
+		this.stock_symbol = stock_symbol;
+		this.stock_price_open = stock_price_open;
+		this.stock_price_high = stock_price_high;
+		this.stock_price_low = stock_price_low;
+		this.stock_price_close = stock_price_close;
+		this.stock_volume = stock_volume;
+		this.stock_price_adj_close = stock_price_adj_close;
+	}
+
+	@Override
+	public void readFields(DataInput in) throws IOException {
+		exchange = in.readUTF();
+		stock_symbol = in.readUTF();
+		stock_price_open = in.readDouble();
+		stock_price_high = in.readDouble();
+		stock_price_low = in.readDouble();
+		stock_price_close = in.readDouble();
+		stock_volume = in.readInt();
+		stock_price_adj_close = in.readDouble();
+	}
+
+	@Override
+	public void write(DataOutput out) throws IOException {
+		
+		out.writeUTF(s);
+		out.writeUTF(s);
+		out.writeDouble(s);
+		out.writeDouble(s);
+		out.writeDouble(s);
+		out.writeDouble(s);
+		out.writeInt(s);
+		out.writeDouble(s);
+		
+
+	}
+
+	@Override
+	public int compareTo(StockInfo o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+}

@@ -1,0 +1,80 @@
+package ca.datalatics.mapreduce.custom;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class AverageWordSize {
+
+	public static class AverageWordMapper extends Mapper<LongWritable, Text, Text, IntPair> {
+
+		IntPair sumAndCount = new IntPair();
+		
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+
+			String words[] = value.toString().split(" ");
+			int wordlength = 0;
+			for (String word : words) {
+
+				wordlength += word.length();
+				sumAndCount.set(wordlength, 1);
+				context.write(new Text(word), sumAndCount);
+
+			}
+
+		}
+
+	}
+
+	public static class AverageWordReducer extends Reducer<Text, IntPair, Text, IntWritable> {
+
+		IntWritable average = new IntWritable();
+		
+		static int total = 0;
+		static int wordSize = 0;
+		
+		public void reduce(Text key, Iterable<IntPair> value, Context context) {
+			
+			for(IntPair ip : value){
+				total+=ip.getFirst();
+				wordSize+=ip.getSecond();
+			}
+
+		}
+
+	}
+
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "JobName");
+		job.setJarByClass(ca.datalatics.mapreduce.custom.AverageWordSize.class);
+		job.setMapperClass(AverageWordMapper.class);
+
+		job.setReducerClass(AverageWordReducer.class);
+
+		// TODO: specify output types
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+
+		// TODO: specify input and output DIRECTORIES (not files)
+		FileInputFormat.setInputPaths(job, new Path("src"));
+		FileOutputFormat.setOutputPath(job, new Path("out"));
+
+		if (!job.waitForCompletion(true))
+			return;
+	}
+
+}

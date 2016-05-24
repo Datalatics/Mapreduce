@@ -1,0 +1,71 @@
+package ca.datalatics.mapreduce.nystock;
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class StockDriver {
+
+	public static class StockMapper extends Mapper<LongWritable, Text, Text, StockInfo> {
+
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+
+			String stockData[] = value.toString().split(",");
+
+			StockInfo stock = new StockInfo(stockData[0], stockData[1], Double.parseDouble(stockData[3]),
+					Double.parseDouble(stockData[4]), Double.parseDouble(stockData[5]),
+					Double.parseDouble(stockData[6]), Integer.parseInt(stockData[7]), Double.parseDouble(stockData[8]));
+
+			context.write(new Text(stockData[2]), stock);
+
+		}
+
+	}
+
+	public static class StockReducer extends Reducer<Text, StockInfo, Text, StockInfo> {
+
+		public void reduce(Text key, Iterable<StockInfo> values, Context context)
+				throws IOException, InterruptedException {
+
+			for (StockInfo si : values) {
+				context.write(key, si);
+			}
+
+		}
+
+	}
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "JobName");
+		job.setJarByClass(ca.datalatics.mapreduce.nystock.StockDriver.class);
+		job.setMapperClass(StockMapper.class);
+
+		job.setReducerClass(StockReducer.class);
+
+		// TODO: specify output types
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(StockInfo.class);
+
+		// TODO: specify input and output DIRECTORIES (not files)
+		FileInputFormat.setInputPaths(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		// deleting the output path automatically from hdfs so that we don't
+		// have delete it explicitly
+		Path outputPath = new Path(args[1]);
+		outputPath.getFileSystem(conf).delete(outputPath);
+
+		if (!job.waitForCompletion(true))
+			return;
+	}
+
+}

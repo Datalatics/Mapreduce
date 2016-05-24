@@ -1,0 +1,65 @@
+package ca.datalatics.mapreduce.wb;
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class GDPDriver {
+	
+	
+	public static class GDPMapper extends Mapper<LongWritable,Text,Text,Text>{
+		
+		public void map(LongWritable key,Text value, Context context) throws IOException, InterruptedException{
+			
+			String splitArr[] = key.toString().split(",");
+			
+			String cntCode = splitArr[0];
+			String cntName = splitArr[3];
+			String gdp = splitArr[4];
+			
+			context.write(new Text(cntName), new Text(gdp));
+			
+			
+		}
+		
+	}
+	
+	public class GDPReducer extends Reducer<Text, Text, Text, Text>{
+		
+		public void reduce(Text key, Iterable<Text> values, Context context){
+			for(Text value:values){
+			context.write(key, values);
+			}
+		}
+		
+	}
+
+	public static void main(String[] args) throws Exception {
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "GDP");
+		job.setJarByClass(ca.datalatics.mapreduce.wb.GDPDriver.class);
+		job.setMapperClass(GDPMapper.class);
+
+		job.setReducerClass(GDPReducer.class);
+
+		// TODO: specify output types
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(Text.class);
+
+		// TODO: specify input and output DIRECTORIES (not files)
+		FileInputFormat.setInputPaths(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+		if (!job.waitForCompletion(true))
+			return;
+	}
+
+}

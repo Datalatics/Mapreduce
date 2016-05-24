@@ -1,0 +1,37 @@
+package ca.datalatics.mapreduce.customformat;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+
+public class MyValue implements WritableComparable<MyValue> {
+	
+	private String value1,value2;
+	
+	public MyValue() {
+		this.value1=new String();
+		this.value2=new String();
+	}
+
+	@Override
+	public void readFields(DataInput arg0) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void write(DataOutput arg0) throws IOException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public int compareTo(MyValue o) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+}

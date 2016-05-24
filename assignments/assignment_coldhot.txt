@@ -1,0 +1,15 @@
+Assignment – Find the Hot and Cold Days
+
+Introduction:
+Apply your MapReduce programming knowledge and write a MapReduce program to process a dataset with temperature records. You need to find the Hot and Cold days in a
+year based on the maximum and minimum temperatures on those days.
+
+The dataset for this problem is the ‘WeatherData’ records file available in Git. This dataset has been taken from National Climatic Data Center (NCDC) public datasets. 
+You can download more datasets from this FTP site ftp://ftp.ncdc.noaa.gov/pub/data/uscrn/products/daily01/ and review the README file to understand the available datasets.
+
+Problem statement:
+
+Your task is to find out the dates with maximum temperature greater than 40 (A Hot Day) and minimum temperature lower than 10 (A Cold Day).
+
+
+

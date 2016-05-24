@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;ca.datalatics.mapreduce.WordSize_WordCount&apos; to &apos;WordSize&apos;&#x0A;- Original project: &apos;Mr_Assignments&apos;&#x0A;- Original element: &apos;ca.datalatics.mapreduce.WordSize_WordCount&apos;&#x0A;- Renamed element: &apos;ca.datalatics.mapreduce.WordSize&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;WordSize_WordCount&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;ca.datalatics.mapreduce{WordSize_WordCount.java[WordSize_WordCount" matchStrategy="1" name="WordSize" qualified="false" references="true" similarDeclarations="false" stamp="1463157769296" textual="false" version="1.0"/>
+</session>

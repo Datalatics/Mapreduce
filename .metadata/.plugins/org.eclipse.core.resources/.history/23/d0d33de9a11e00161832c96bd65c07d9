@@ -1,0 +1,9 @@
+package ca.datalatics.mapreduce.customformat;
+
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+
+public class MyInputFormat extends FileInputFormat<MyKey, MyValue>{
+	
+	
+
+}

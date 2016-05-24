@@ -1,0 +1,5 @@
+package ca.datalatics.mapreduce.detection;
+
+public class FaceDetect {
+
+}

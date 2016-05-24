@@ -1,0 +1,22 @@
+Using the distributed cache in MapReduce to find lines that contain matching keywords.
+The distributed cache in MapReduce is almost always required for any complex assignment involving dependent libraries and code. One very common operation is passing cache files for use in each map/reduce task JVM. 
+This recipe will use the MapReduce API and the distributed cache to associate abbreviated data to detail file which is present in the Cache.
+Say we have data related to state-wise population of Canada as follows,
+
+Nu	36,687	31,906
+Al	4,145,992	3,645,257
+Sa	1,129,899	1,033,381
+Yu	36,758	33,897
+On	13,730,187	12,851,821
+
+If we need to come out with detailed names for these abbreviated data we can simply pass the detail data to cache which is as follows.
+
+Nu	Nunavut
+Al	Alberta
+Sa	Saskatchewan
+Yu	Yukon
+On	Ontario
+
+Then read this file in Mapper or Reducer program where we can write logic to associate this detail information.
+
+

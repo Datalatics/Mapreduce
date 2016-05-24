@@ -1,0 +1,71 @@
+package ca.datalatics.mapreduce.distcache;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+
+public class DistCacheMapper extends Mapper<LongWritable, Text, Text, ProvincePop> {
+
+	private Map<String, String> abMap = new HashMap<String, String>();
+	private Text outputKey = new Text();
+
+	public void setup(Context context) throws IOException {
+
+		URI[] uri = context.getCacheFiles();
+		
+		System.out.println(" URI******* "+uri.length);
+
+		if (uri == null || uri != null && uri.length == 0) {
+			return;
+		}
+
+		for (URI url : uri) {
+
+			Path path = new Path(url);
+			
+			System.out.println(" path.getName() provinces "+path.getName());
+
+			if (path.getName().equals("provinces.txt")) {
+				try (BufferedReader reader = new BufferedReader(new FileReader(path.toString()))) {
+					String line = reader.readLine();
+					while (line != null) {
+						String[] tokens = line.split("\t");
+						String ab = tokens[0];
+						String provience = tokens[1];
+						abMap.put(ab, provience);
+						line = reader.readLine();
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+
+		String row = value.toString();
+		String[] tokens = row.split("\t");
+		
+		System.out.println(tokens);
+
+		ProvincePop pv = new ProvincePop(tokens[0], tokens[1], tokens[2]);
+
+		String province = abMap.get(pv.getProvinceAb());
+		outputKey.set(province);
+		context.write(outputKey, pv);
+
+	}
+
+}

@@ -1,0 +1,154 @@
+/*******************************************************************************
+  Copyright (c) 2015 datalatics [www.datalatics.ca]
+ ******************************************************************************/
+
+package ca.datalatics.mapreduce;
+
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+
+/*
+ * All org.apache.hadoop packaged can be imported using the jar present in lib 
+ * directory of this java project.
+*/
+
+public class WordSize_WordCount {
+	
+	/** 
+	 * @author datalatics!
+	 * @interface Mapper
+	 * <p>Map class is static and extends MapReduceBase and implements Mapper 
+	 * interface having four hadoop generics type LongWritable, Text, IntWritable,
+	 * Text
+	 */
+	
+	public static class WordSizeMapper extends Mapper<LongWritable,Text,IntWritable,Text>{
+		
+		//Defining a local variable count of type IntWritable
+		private static IntWritable count;
+		//Defining a local variable word of type Text
+		private Text word = new Text();
+		
+		public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+			//Converting the record (single line) to String and storing it in a String variable line
+            String line = value.toString();
+            //split is breaking the record (line) into words
+            String splitWordsArr[] = line.split(" ");
+            
+            for (String splitWord : splitWordsArr) {
+            	
+            	count= new IntWritable(splitWord.length()); 
+            	word.set(splitWord);
+            	context.write(count, word);
+			}
+    	}
+	}
+	
+  	/**
+	 * @method reduce
+	 * <p>This method takes the input as key and list of values pair from mapper, it does aggregation
+	 * based on keys and produces the final output.                                               
+	 * @method_arguments key, values, output, reporter	
+	 * @return void
+	 */	
+	
+	 /*
+	 * (non-Javadoc)
+	 * @see org.apache.hadoop.mapred.Reducer#reduce(java.lang.Object, java.util.Iterator, org.apache.hadoop.mapred.OutputCollector, org.apache.hadoop.mapred.Reporter)
+	 */
+
+	public static class WordSizeReducer extends Reducer<IntWritable,Text,IntWritable,IntWritable> {
+		
+		public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+			
+			//Defining a local variable sum of type int
+			int sum = 0;
+			
+			/*
+             * Iterates through all the values available with a key and add them together and give the final
+             * result as the key and sum of its values.
+            */
+			
+			for (Text text : values) {
+				
+				sum++;
+				
+			}
+			//Dumping the output
+            context.write(key, new IntWritable(sum));
+		}
+		
+	}
+	
+	//Driver
+
+    /**
+     * @method main
+     * <p>This method is used for setting all the configuration properties.
+     * It acts as a driver for map reduce code.
+     * @return void
+     * @method_arguments args
+     * @throws Exception
+     */
+	
+	public static void main(String[] args) throws Exception {
+		
+		//reads the default configuration of cluster from the configuration xml files
+		Configuration conf = new Configuration();
+		
+		//Initializing the job with the default configuration of the cluster
+		Job job = Job.getInstance(conf, "Wordsize");
+		
+		//Assigning the driver class name
+		job.setJarByClass(ca.datalatics.mapreduce.WordSize.class);
+		
+		//Defining the mapper class name
+		job.setMapperClass(WordSizeMapper.class);
+		
+		//Defining the reducer class name
+		job.setReducerClass(WordSizeReducer.class);
+		
+		//Defining the output key class for the mapper
+		job.setMapOutputKeyClass(IntWritable.class);
+		
+		//Defining the output value class for the mapper
+		job.setMapOutputValueClass(Text.class);
+		
+		//Defining the output key class for the final output i.e. from reducer
+		
+		job.setOutputKeyClass(IntWritable.class);
+		
+		//Defining the output value class for the final output i.e. from reduce
+		job.setOutputValueClass(IntWritable.class);
+		
+		//Defining input Format class which is responsible to parse the dataset into a key value pair
+		job.setInputFormatClass(TextInputFormat.class);
+		
+		//Defining output Format class which is responsible to parse the final key-value output from MR framework to a text file into the hard disk
+		job.setOutputFormatClass(TextOutputFormat.class);
+		
+		FileInputFormat.setInputPaths(job, new Path(args[0]));
+		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+		
+		//deleting the output path automatically from hdfs so that we don't have delete it explicitly
+		Path outputPath = new Path(args[1]);
+		outputPath.getFileSystem(conf).delete(outputPath);
+
+		if (!job.waitForCompletion(true))
+			return;
+	}
+
+}

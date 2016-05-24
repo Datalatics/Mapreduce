@@ -1,0 +1,13 @@
+Nu	Nunavut
+Al	Alberta
+Sa	Saskatchewan
+Yu	Yukon
+On	Ontario
+Ma	Manitoba
+BC	British Columbia
+NT	Northwest Territories
+PEI	Prince Edward Island
+QU	Quebec
+NS	Nova Scotia
+NL	Newfoundland and Labrador
+NB	New Brunswick

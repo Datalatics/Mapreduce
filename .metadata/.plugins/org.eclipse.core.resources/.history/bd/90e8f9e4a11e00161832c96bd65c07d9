@@ -1,0 +1,5 @@
+package ca.datalatics.mapreduce.customformat;
+
+public class MyInputFormat {
+
+}

@@ -1,0 +1,25 @@
+Assignment – Calculate the number of sub-patents
+
+Introduction
+
+Apply your MapReduce programming knowledge and write a MapReduce program to
+process a dataset with patent records. You need to calculate the number of sub-patents
+associated with each patent.
+
+
+Problem statement
+
+Let’s understand the problem through a subset of patent records as shown in the following figure:
+
+Each patent has sub-patent id’s associated with it. You need to calculate the number of sub-patent
+associated with each patent. Here is the sample output:
+
+Sample Output
+Patent Number of Associated Sub-patents
+1 13
+2 10
+3 4
+
+Your task in this assignment is to process the ‘patent’ records using MapReduce program and count
+the number of associated sub-patents for each patent is in this dataset.
+

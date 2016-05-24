@@ -1,0 +1,72 @@
+package ca.datalatics.mapreduce.customformat;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
+
+
+public class MyKey implements WritableComparable{
+	private String SensorType,timestamp,status;
+	
+	@Override
+	public String toString() {
+		return "MyKey [SensorType=" + SensorType + ", timestamp=" + timestamp + ", status=" + status + "]";
+	}
+	public MyKey(){
+		this.SensorType = new String();
+		this.timestamp = new String();
+		this.status = new String();
+	}
+	public MyKey(String SensorType,String timestamp,String status){
+		this.SensorType = SensorType;
+		this.timestamp = timestamp;
+		this.status = status;		
+	}
+	public void readFields(DataInput in) throws IOException{
+		SensorType=in.readUTF();
+		timestamp=in.readUTF();
+		status=in.readUTF();
+	}
+	
+	public void write(DataOutput out) throws IOException{
+		out.write();
+		out.write();
+		out.write();
+	}
+	public int compareTo(Object o){
+		MyKey other = (MyKey)o;
+		int cmp = SensorType.compareTo(other.SensorType);
+		if(cmp != 0){
+				return cmp;
+		}
+		cmp = timestamp.compareTo(other.timestamp);
+		if(cmp != 0){
+				return cmp;
+		}
+		return status.compareTo(other.status);
+		
+	}
+	public String getSensorType() {
+		return SensorType;
+	}
+	public void setSensorType(String sensorType) {
+		SensorType = sensorType;
+	}
+	public String getTimestamp() {
+		return timestamp;
+	}
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+
+}

@@ -1,0 +1,7 @@
+package ca.datalatics.mapreduce.customformat;
+
+import org.apache.hadoop.mapreduce.RecordReader;
+
+public class MyRecordReader extends RecordReader<MyKey, MyValue> {
+
+}

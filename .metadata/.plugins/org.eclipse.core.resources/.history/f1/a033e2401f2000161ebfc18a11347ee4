@@ -1,0 +1,53 @@
+package ca.datalatics.mapreduce.customformat;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
+
+
+public class MyValue implements WritableComparable{
+	private String value1,value2;
+	
+	public MyValue(){
+		this.value1 = new String();
+		this.value2 = new String();
+	}
+	public MyValue(String value1,String value2){
+		this.value1 = value1;
+		this.value2 = value2;
+	}
+	public void readFields(DataInput in) throws IOException{
+		in.readUTF(value1);
+		in.readUTF(value2);
+	}
+	
+	public void write(DataOutput out) throws IOException{
+		value1.write(out);
+		value2.write(out);
+	}
+	public int compareTo(Object o){
+		MyValue other = (MyValue)o;
+		int cmp = value1.compareTo(other.value1);
+		if(cmp != 0){
+				return cmp;
+		}
+		return value2.compareTo(other.value2);
+		
+	}
+	public String getValue1() {
+		return value1;
+	}
+	public void setValue1(String value1) {
+		this.value1 = value1;
+	}
+	public String getValue2() {
+		return value2;
+	}
+	public void setValue2(String value2) {
+		this.value2 = value2;
+	}
+
+}

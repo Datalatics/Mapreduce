@@ -1,0 +1,94 @@
+package ca.datalatics.mapreduce.distcache;
+
+import java.io.IOException;
+import java.net.URI;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+
+public class DistCacheDriver extends Configured implements Tool {
+	
+	
+	
+	public static class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+
+		public void map(LongWritable key, Text value, Context context) throws InterruptedException, IOException {
+
+			String inputLine = value.toString();
+			String splitWordsArr[] = inputLine.split("\t");
+
+			for (String word : splitWordsArr) {
+
+				context.write(new Text(word.trim()), new Text(" Test "));
+
+			}
+
+		}
+
+	}
+
+	public static void main(String[] args) throws Exception {
+
+		int res = ToolRunner.run(new DistCacheDriver(), args);
+		System.exit(res);
+
+	}
+
+	@Override
+	public int run(String[] args) throws Exception {
+
+		if (args.length < 3) {
+			throw new Exception(
+					" Usage Error: hadoop jar /home/hduser/git/Mapreduce/Mr_Assignments.jar ca.datalatics.mapreduce.distcache.DistCacheDriver /dataset/dist_cache/provinces.txt /dataset/dist_cache/provinces_pop.txt /output");
+		}
+		Configuration conf = getConf();
+		Job job = Job.getInstance(conf, "DistCacheDriver");
+		job.setJarByClass(DistCacheDriver.class);
+		job.setMapperClass(WordCountMapper.class);
+		
+		
+
+		job.addCacheFile(new URI(args[0]));
+
+		URI[] cacheFiles = job.getCacheFiles();
+		if (cacheFiles != null) {
+			for (URI cacheFile : cacheFiles) {
+				System.out.println("Cache file ->" + cacheFile);
+			}
+		}
+		
+		job.setInputFormatClass(TextInputFormat.class);
+		job.setOutputFormatClass(TextOutputFormat.class);
+		
+
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(Text.class);
+		
+		System.out.println(" Input File " + args[1]);
+		System.out.println(" Output File " + args[2]);
+
+		FileInputFormat.setInputPaths(job, new Path(args[1]));
+		FileOutputFormat.setOutputPath(job, new Path(args[2]));
+
+		Path output = new Path(args[2]);
+
+		output.getFileSystem(conf).delete(output);
+
+		return job.waitForCompletion(true) ? 0 : 1;
+
+	}
+
+}
